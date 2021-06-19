@@ -34,3 +34,18 @@ compileJava.options.encoding = "utf-8"
 tasks.withType(JavaCompile) {
     options.encoding = "utf-8"
 }
+
+run {
+    standardInput = System.in
+}
+
+jar {
+  manifest {
+    attributes(
+      "Main-Class": "project.App"
+    )
+  }
+}
+
+sourceCompatibility = "1.11"
+targetCompatibility = "1.11"
