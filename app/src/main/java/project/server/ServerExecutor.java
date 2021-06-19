@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+/**
+ * 서버 소켓을 실행하는 클래스
+ */
 public class ServerExecutor {
 
     private int clientId = 0;
@@ -16,6 +19,11 @@ public class ServerExecutor {
         this.port = port;
     }
 
+    /**
+     * Sender 쓰레드를 실행하고
+     * 주어진 port 로 서버소켓을 생성한다.
+     * 매번 새로운 클라이언트가 접속할 때마다 ClientHandler 를 생성하여 새 쓰레드에서 실행한다.
+     */
     public void execute() {
         new Thread(sender).start();
         try (ServerSocket serverSocket = new ServerSocket(port)) {

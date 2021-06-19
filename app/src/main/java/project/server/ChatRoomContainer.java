@@ -3,6 +3,10 @@ package project.server;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 서버에서 모든 채팅방들을 관리하기 위한 클래스
+ * 채팅방ID를 key 로 가지며 key 조회, 생성 등이 가능하다.
+ */
 public class ChatRoomContainer {
     
     private final Map<String, ChatRoom> chatRooms = new ConcurrentHashMap<>();

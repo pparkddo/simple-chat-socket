@@ -8,6 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+/**
+ * 사용자의 출력을 처리하는 클래스
+ */
 public class OutputHandler implements Runnable {
 
     private final Socket socket;
@@ -21,6 +24,13 @@ public class OutputHandler implements Runnable {
         this.scanner = scanner;
     }
 
+    /**
+     * 닉네임, 채팅방 설정을 한다.
+     * 이후로는 사용자로부터 채팅을 입력받는다.
+     * 채팅내용이 file:// 로 시작할 경우는 파일로 인식하여 파일전송 로직을 실행한다.
+     * file://c:\Document\sample.doc 과 같이 입력하면
+     * 해당 파일을 같은 채팅방 내 모든 클라이언트에게 전송한다.
+     */
     @Override
     public void run() {
         try {

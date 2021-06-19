@@ -1,5 +1,9 @@
 package project.server;
 
+/**
+ * 클라이언트에게 전송될 메시지를 구현한 클래스
+ * Content 에는 일반 MessageContent 또는 FileContent 가 들어갈 수 있다.
+ */
 public class Message {
     
     private final ChatRoom chatRoom;

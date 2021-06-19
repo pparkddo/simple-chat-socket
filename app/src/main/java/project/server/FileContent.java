@@ -1,5 +1,8 @@
 package project.server;
 
+/**
+ * 전송될 파일내용을 담고 있는 클래스
+ */
 public class FileContent implements Content {
 
     private final String filename;

@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
+/**
+ * 서버로부터 수신되는 입력을 처리하는 클래스
+ */
 public class InputHandler implements Runnable {
 
     private final Socket socket;
@@ -20,6 +22,12 @@ public class InputHandler implements Runnable {
         this.downloadPath = downloadPath;
     }
 
+    /**
+     * 먼저 type 을 수신한다.
+     * type 이 file 일 때는 파일 데이터를 처리하는 로직을 실행한다.
+     * type 이 message 일 때는 메시지 데이터를 처리하는 로직을 실행한다.
+     * 만약 올바르지 않은 type 이라면 IllegalArgumentException 을 일으킨다.
+     */
     @Override
     public void run() {
         try {
