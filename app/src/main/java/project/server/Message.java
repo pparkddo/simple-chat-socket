@@ -4,9 +4,9 @@ public class Message {
     
     private final ChatRoom chatRoom;
     private final Client sender;
-    private final String content;
+    private final Content content;
 
-    public Message(ChatRoom chatRoom, Client sender, String content) {
+    public Message(ChatRoom chatRoom, Client sender, Content content) {
         this.chatRoom = chatRoom;
         this.sender = sender;
         this.content = content;
@@ -20,7 +20,7 @@ public class Message {
         return sender;
     }
 
-    public String getContent() {
+    public Content getContent() {
         return this.content;
     }
 }

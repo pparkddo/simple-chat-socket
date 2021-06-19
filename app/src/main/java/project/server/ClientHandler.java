@@ -11,6 +11,8 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final ChatRoomContainer chatRooms;
     private final Channel channel;
+    private static final String FILE_TYPE = "file";
+    private static final String MESSAGE_TYPE = "message";
 
     public ClientHandler(int clientId, Socket socket, ChatRoomContainer chatRooms, Channel channel) {
         this.clientId = clientId;
@@ -29,8 +31,10 @@ public class ClientHandler implements Runnable {
             Client client = new Client(clientId, clientName, socket);
 
             if (chatRooms.isEmpty()) {
+                out.writeUTF(MESSAGE_TYPE);
                 out.writeUTF("아직 개설된 채팅방이 없습니다");
             } else {
+                out.writeUTF(MESSAGE_TYPE);
                 out.writeUTF(chatRooms.toString());
             }
 
@@ -44,9 +48,24 @@ public class ClientHandler implements Runnable {
             }
 
             while (true) {
-                String chatContent = in.readUTF();
-                Message message = new Message(chatRooms.get(chatRoomId), client, chatContent);
-                channel.send(message);
+                String type = in.readUTF();
+                if (FILE_TYPE.equals(type)) {
+                    String filename = in.readUTF();
+                    int fileSize = in.readInt();
+                    byte[] bytes = in.readNBytes(fileSize);
+                    Content content = new FileContent(filename, fileSize, bytes);
+                    Message message = new Message(chatRooms.get(chatRoomId), client, content);
+                    channel.send(message);
+                }
+                else if (MESSAGE_TYPE.equals(type)) {
+                    String value = in.readUTF();
+                    Content content = new MessageContent(value);
+                    Message message = new Message(chatRooms.get(chatRoomId), client, content);
+                    channel.send(message);
+                }
+                else {
+                    throw new IllegalArgumentException("Unknown type: " + type);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
