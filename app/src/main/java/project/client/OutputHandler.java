@@ -23,15 +23,15 @@ public class OutputHandler implements Runnable {
             String name = scanner.nextLine();
             out.writeUTF(name);
 
-            System.out.print("입력할 채팅방 번호를 입력하세요: ");
-            int chatRoomId = scanner.nextInt();
-            out.writeInt(chatRoomId);
+            System.out.println("입력할 채팅방 이름을 입력하세요");
+            String chatRoomId = scanner.nextLine();
+            out.writeUTF(chatRoomId);
 
             while (true) {
-                String message = scanner.nextLine();
-                out.writeUTF(message);
+                String chatContent = scanner.nextLine();
+                out.writeUTF(chatContent);
                 out.flush();
-                if (message.equals("exit")) {
+                if (chatContent.equals("exit")) {
                     break;
                 }
             }

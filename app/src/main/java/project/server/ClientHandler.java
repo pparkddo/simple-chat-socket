@@ -4,16 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Map;
 
 public class ClientHandler implements Runnable {
     
     private final int clientId;
     private final Socket socket;
-    private final Map<Integer, ChatRoom> chatRooms;
+    private final ChatRoomContainer chatRooms;
     private final Channel channel;
 
-    public ClientHandler(int clientId, Socket socket, Map<Integer, ChatRoom> chatRooms, Channel channel) {
+    public ClientHandler(int clientId, Socket socket, ChatRoomContainer chatRooms, Channel channel) {
         this.clientId = clientId;
         this.socket = socket;
         this.chatRooms = chatRooms;
@@ -29,9 +28,13 @@ public class ClientHandler implements Runnable {
             String clientName = in.readUTF();
             Client client = new Client(clientId, clientName, socket);
 
-            out.writeUTF(chatRooms.toString());
+            if (chatRooms.isEmpty()) {
+                out.writeUTF("아직 개설된 채팅방이 없습니다");
+            } else {
+                out.writeUTF(chatRooms.toString());
+            }
 
-            int chatRoomId = in.readInt();
+            String chatRoomId = in.readUTF();
             if (chatRooms.containsKey(chatRoomId)) {
                 chatRooms.get(chatRoomId).getClients().add(client);
             } else {
@@ -41,8 +44,8 @@ public class ClientHandler implements Runnable {
             }
 
             while (true) {
-                String content = in.readUTF();
-                Message message = new Message(chatRoomId, client.getId(), content);
+                String chatContent = in.readUTF();
+                Message message = new Message(chatRooms.get(chatRoomId), client, chatContent);
                 channel.send(message);
             }
         } catch (IOException e) {

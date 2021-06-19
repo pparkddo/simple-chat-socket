@@ -28,3 +28,9 @@ application {
     // Define the main class for the application.
     mainClass = 'project.App'
 }
+
+compileJava.options.encoding = "utf-8"
+
+tasks.withType(JavaCompile) {
+    options.encoding = "utf-8"
+}

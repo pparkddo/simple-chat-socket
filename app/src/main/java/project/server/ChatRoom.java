@@ -5,14 +5,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ChatRoom {
 
-    private final int id;
+    private final String id;
     private final Queue<Client> clients = new ConcurrentLinkedQueue<>();
 
-    public ChatRoom(int id) {
+    public ChatRoom(String id) {
         this.id = id;
     }
 
-    public int getId() {
+    public String getId() {
         return this.id;
     }
 

@@ -2,16 +2,13 @@ package project.server;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Map;
 
 public class Sender implements Runnable {
 
     private final Channel channel;
-    private final Map<Integer, ChatRoom> chatRooms;
 
-    public Sender(Channel channel, Map<Integer, ChatRoom> chatRooms) {
+    public Sender(Channel channel) {
         this.channel = channel;
-        this.chatRooms = chatRooms;
     }
 
     @Override
@@ -21,10 +18,14 @@ public class Sender implements Runnable {
                 continue;
             }
             Message message = channel.getMessages().poll();
-            for (Client client : chatRooms.get(message.getChatRoomId()).getClients()) {
+            Client sender = message.getSender();
+            for (Client client : message.getChatRoom().getClients()) {
                 try {
-                    DataOutputStream out = new DataOutputStream(client.getSocket().getOutputStream());;
-                    out.writeUTF(message.getSenderId() + ": " + message.getContent());
+                    if (client.getId() == sender.getId()) {
+                        continue;
+                    }
+                    DataOutputStream out = new DataOutputStream(client.getSocket().getOutputStream());
+                    out.writeUTF(sender.getName() + ": " + message.getContent());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

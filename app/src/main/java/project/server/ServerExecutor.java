@@ -3,16 +3,14 @@ package project.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerExecutor {
 
     private int clientId = 0;
     private final int port;
-    private final Map<Integer, ChatRoom> chatRooms = new ConcurrentHashMap<>();
+    private final ChatRoomContainer chatRooms = new ChatRoomContainer();
     private final Channel channel = new Channel();
-    private final Sender sender = new Sender(channel, chatRooms);
+    private final Sender sender = new Sender(channel);
 
     public ServerExecutor(int port) {
         this.port = port;

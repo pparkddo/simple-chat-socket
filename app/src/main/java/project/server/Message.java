@@ -2,22 +2,22 @@ package project.server;
 
 public class Message {
     
-    private final int chatRoomId;
-    private final int senderId;
+    private final ChatRoom chatRoom;
+    private final Client sender;
     private final String content;
 
-    public Message(int chatRoomId, int senderId, String content) {
-        this.chatRoomId = chatRoomId;
-        this.senderId = senderId;
+    public Message(ChatRoom chatRoom, Client sender, String content) {
+        this.chatRoom = chatRoom;
+        this.sender = sender;
         this.content = content;
     }
 
-    public int getChatRoomId() {
-        return this.chatRoomId;
+    public ChatRoom getChatRoom() {
+        return chatRoom;
     }
 
-    public int getSenderId() {
-        return this.senderId;
+    public Client getSender() {
+        return sender;
     }
 
     public String getContent() {
