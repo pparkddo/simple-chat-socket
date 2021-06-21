@@ -15,7 +15,7 @@ public class ClientHandler implements Runnable {
     private final ChatRoomContainer chatRooms;
     private final Channel channel;
     private static final String FILE_TYPE = "file";
-    private static final String MESSAGE_TYPE = "message";
+    private static final String CHAT_TYPE = "message";
 
     public ClientHandler(int clientId, Socket socket, ChatRoomContainer chatRooms, Channel channel) {
         this.clientId = clientId;
@@ -38,19 +38,16 @@ public class ClientHandler implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
+        try (DataInputStream in = new DataInputStream(socket.getInputStream());
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream())){
+            MessageWriter messageWriter = new MessageWriter(out);
             String clientName = in.readUTF();
             Client client = new Client(clientId, clientName, socket);
 
             if (chatRooms.isEmpty()) {
-                out.writeUTF(MESSAGE_TYPE);
-                out.writeUTF("아직 개설된 채팅방이 없습니다");
+                messageWriter.write("아직 개설된 채팅방이 없습니다");
             } else {
-                out.writeUTF(MESSAGE_TYPE);
-                out.writeUTF(chatRooms.toString());
+                messageWriter.write(chatRooms.toString());
             }
 
             String chatRoomId = in.readUTF();
@@ -62,23 +59,8 @@ public class ClientHandler implements Runnable {
 
             while (true) {
                 String type = in.readUTF();
-                if (FILE_TYPE.equals(type)) {
-                    String filename = in.readUTF();
-                    int fileSize = in.readInt();
-                    byte[] bytes = in.readNBytes(fileSize);
-                    Content content = new FileContent(filename, fileSize, bytes);
-                    Message message = new Message(chatRooms.get(chatRoomId), client, content);
-                    channel.send(message);
-                }
-                else if (MESSAGE_TYPE.equals(type)) {
-                    String value = in.readUTF();
-                    Content content = new MessageContent(value);
-                    Message message = new Message(chatRooms.get(chatRoomId), client, content);
-                    channel.send(message);
-                }
-                else {
-                    throw new IllegalArgumentException("Unknown type: " + type);
-                }
+                Message message = parseMessage(type, in, chatRoomId, client);
+                channel.send(message);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -93,5 +75,27 @@ public class ClientHandler implements Runnable {
         ChatRoom chatRoom = new ChatRoom(chatRoomId);
         chatRooms.put(chatRoomId, chatRoom);
         chatRoom.getClients().add(client);
+    }
+
+    private Message parseMessage(String type, DataInputStream in, String chatRoomId, Client client) throws IOException {
+        if (FILE_TYPE.equals(type)) {
+            return parseFileMessage(in, chatRoomId, client);
+        }
+        if (CHAT_TYPE.equals(type)) {
+            return parseChatMessage(in, chatRoomId, client);
+        }
+        throw new IllegalArgumentException("Unknown type: " + type);
+    }
+
+    private Message parseFileMessage(DataInputStream in, String chatRoomId, Client client) throws IOException {
+        String filename = in.readUTF();
+        int fileSize = in.readInt();
+        byte[] bytes = in.readNBytes(fileSize);
+        return new FileMessage(chatRooms.get(chatRoomId), client, filename, bytes, client.getName());
+    }
+
+    private Message parseChatMessage(DataInputStream in, String chatRoomId, Client client) throws IOException {
+        String content = in.readUTF();
+        return new ChatMessage(chatRooms.get(chatRoomId), client, content);
     }
 }

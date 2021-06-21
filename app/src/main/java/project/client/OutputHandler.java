@@ -17,7 +17,7 @@ public class OutputHandler implements Runnable {
     private final Scanner scanner;
     private static final String FILE_STRING = "file://";
     private static final String FILE_TYPE = "file";
-    private static final String MESSAGE_TYPE = "message";
+    private static final String CHAT_TYPE = "message";
 
     public OutputHandler(Socket socket, Scanner scanner) {
         this.socket = socket;
@@ -33,9 +33,7 @@ public class OutputHandler implements Runnable {
      */
     @Override
     public void run() {
-        try {
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
+        try (DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
             System.out.print("닉네임을 입력하세요: ");
             String name = scanner.nextLine();
             out.writeUTF(name);
@@ -52,22 +50,28 @@ public class OutputHandler implements Runnable {
                 if (content.startsWith(FILE_STRING)) {
                     Path filename = Paths.get(content.substring(FILE_STRING.length()));
                     byte[] bytes = Files.readAllBytes(filename);
-                    int fileSize = bytes.length;
-                    out.writeUTF(FILE_TYPE);
-                    out.writeUTF(filename.getFileName().toString());
-                    out.writeInt(fileSize);
-                    out.write(bytes);
+                    writeFileMessage(out, filename.getFileName().toString(), bytes);
                 }
                 else {
-                    out.writeUTF(MESSAGE_TYPE);
-                    out.writeUTF(content);
+                    writeChatMessage(out, content);
                 }
                 out.flush();
             }
-            
-            out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void writeFileMessage(
+        DataOutputStream out, String filename, byte[] bytes) throws IOException {
+        out.writeUTF(FILE_TYPE);
+        out.writeUTF(filename);
+        out.writeInt(bytes.length);
+        out.write(bytes);
+    }
+
+    private void writeChatMessage(DataOutputStream out, String content) throws IOException {
+        out.writeUTF(CHAT_TYPE);
+        out.writeUTF(content);
     }
 }
